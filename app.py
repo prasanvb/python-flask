@@ -34,3 +34,12 @@ def create_store_item(name):
             store["items"].append(request_json_data)
             return store, 201
     return {"error_message": "store not found"}, 404
+
+
+@app.get("/store/<string:name>/items")  # GET: http://127.0.0.1:5000/store/ikea/items
+def get_store_items(name):
+    for store in stores:
+        store["name"] == name
+        return store["items"], 200
+    return {"error_message": "store not found"}, 404
+
