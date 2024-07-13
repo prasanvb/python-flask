@@ -5,9 +5,14 @@ app = Flask(__name__)
 stores = [{"name": "ikea", "items": [{"name": "lamp", "price": 15.99}]}]
 
 
+@app.get("/")  # GET:http://127.0.0.1:5000/
+def main():
+    return "Python flask project", 200
+
+
 @app.get("/stores")  # GET:http://127.0.0.1:5000/stores
 def get_stores():
-    return {"stores": stores}
+    return {"stores": stores}, 200
 
 
 @app.post("/store")  # POST:http://127.0.0.1:5000/store # body:{"store":"home depot"}
@@ -29,4 +34,3 @@ def create_store_item(name):
             store["items"].append(request_json_data)
             return store, 201
     return {"error_message": "store not found"}, 404
-
