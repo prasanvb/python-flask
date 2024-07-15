@@ -1,21 +1,23 @@
 from flask import Flask, request
-
+from db import stores, items
 app = Flask(__name__)
 
 stores = [{"name": "ikea", "items": [{"name": "lamp", "price": 15.99}]}]
+
+
+@app.get("/stores")  # GET:http://127.0.0.1:5000/stores
+def get_stores():
 
 
 @app.get("/")  # GET:http://127.0.0.1:5000/
 def main():
     return "Python flask project", 200
 
-
-@app.get("/stores")  # GET:http://127.0.0.1:5000/stores
-def get_stores():
     return {"stores": stores}, 200
 
 
-@app.post("/store")  # POST:http://127.0.0.1:5000/store # body:{"store":"home depot"}
+# POST:http://127.0.0.1:5000/store # body:{"store":"home depot"}
+@app.post("/store")
 def create_store():
     request_json_data = request.get_json()
     print({"type": type(request_json_data).__name__, "data": request_json_data})
@@ -36,10 +38,10 @@ def create_store_item(name):
     return {"error_message": "store not found"}, 404
 
 
-@app.get("/store/<string:name>/items")  # GET: http://127.0.0.1:5000/store/ikea/items
+# GET: http://127.0.0.1:5000/store/ikea/items
+@app.get("/store/<string:name>/items")
 def get_store_items(name):
     for store in stores:
         store["name"] == name
         return store["items"], 200
     return {"error_message": "store not found"}, 404
-
