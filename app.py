@@ -91,3 +91,34 @@ def get_item(item_id):
         return items[item_id]
     except KeyError:
         abort(404, message="Store not found")
+
+
+# DELETE: http://127.0.0.1:5000/item/e00b46de7ff947a194ad7dd169e5b123
+@app.delete("/item/<string:item_id>")
+def delete_item_by_id(item_id):
+    try:
+        print(items[item_id])
+        del items[item_id]
+        return {"message": "Item deleted successfully"}, 200
+    except KeyError:
+        abort(404, message="Item not found.")
+
+
+# PUT: http: // 127.0.0.1: 5000/item/e00b46de7ff947a194ad7dd169e5b123
+@app.put("/item/<string:item_id>")
+def update_item_by_id(item_id):
+    data = request.get_json()
+
+    if ("name" not in data or "price" not in data):
+        abort(
+            400,
+            message="Bad request. Ensure 'price', and 'name' are included in the JSON payload.",
+        )
+
+    try:
+        item = items[item_id]
+        item |= data
+
+        return item
+    except KeyError:
+        abort(404, message="Item not found.")
