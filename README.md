@@ -2,10 +2,11 @@
 
 ## Initial Set up
 
-1. ```git clone <url>```
-2. ```python -m venv .venv``` - initializes python virtual env for development on the current folder `.venv`
-3. ```pip3 install flask``` - install flask
-4. ```flask run``` - to access local host
+1. `git clone <url>`
+2. `python -m venv .venv` - initializes python virtual env for development on the current folder `.venv`
+3. `pip install -r requirements.txt` - install project dependencies
+4. `flask run` - to access local host *or* `flask --debug run` - runs flask in watch mode 
+
 
 **Note**: From the VS code Command Palette (cmf+shift+p) use the `Python: Select Interpreter` command to resolve any import issues
 
