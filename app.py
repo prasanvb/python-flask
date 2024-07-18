@@ -97,7 +97,6 @@ def get_item(item_id):
 @app.delete("/item/<string:item_id>")
 def delete_item_by_id(item_id):
     try:
-        print(items[item_id])
         del items[item_id]
         return {"message": "Item deleted successfully"}, 200
     except KeyError:
@@ -118,7 +117,16 @@ def update_item_by_id(item_id):
     try:
         item = items[item_id]
         item |= data
-
         return item
     except KeyError:
         abort(404, message="Item not found.")
+
+
+# DELETE: http://127.0.0.1:5000/store/e00b46de7ff947a194ad7dd169e5b123
+@app.delete("/store/<string:store_id>")
+def delete_store_by_id(store_id):
+    try:
+        del stores["store_id"]
+        return {"message": "Store deleted successfully"}, 200
+    except KeyError:
+        abort(404, message="Store not found.")
