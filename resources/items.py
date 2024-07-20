@@ -11,43 +11,11 @@ from schemas import ItemSchema, ItemUpdateSchema
 items_blp = Blueprint("items", __name__, description="operations on items")
 
 
-@items_blp.route("/item/<string:item_id>")
-class Item(MethodView):
-    def get(self, item_id):
-        try:
-            return items[item_id]
-        except KeyError:
-            abort(404, message="Store not found")
-
-    def delete(self, item_id):
-        try:
-            del items[item_id]
-            return {"message": "Item deleted successfully"}, 200
-        except KeyError:
-            abort(404, message="Item not found.")
-
-    @items_blp.arguments(ItemUpdateSchema)
-    def put(self, item_data, item_id):
-        # item_data is returned in json formate after all the validation performed by ItemSchema on `request.get_json()`
-
-        try:
-            item = items[item_id]
-            item |= item_data
-            return item
-        except KeyError:
-            abort(404, message="Item not found.")
-
-
-@items_blp.route("/items")
-class Items(MethodView):
-    def get(self):
-        return {"items": items}, 200
-
-
 @items_blp.route("/item")
 class CreateItem(MethodView):
 
     @items_blp.arguments(ItemSchema)
+    @items_blp.response(200, ItemSchema)
     def post(self, item_data):
         # item_data is returned in json formate after all the validation performed by ItemSchema on `request.get_json()`
         name, price, store_id = item_data.values()
@@ -63,3 +31,38 @@ class CreateItem(MethodView):
         item = {**item_data, "id": item_id}
         items[item_id] = item
         return item
+
+
+@items_blp.route("/items")
+class Items(MethodView):
+
+    @items_blp.response(200, ItemSchema(many=True))
+    def get(self):
+        return items.values()
+
+
+@items_blp.route("/item/<string:item_id>")
+class Item(MethodView):
+    def get(self, item_id):
+        try:
+            return items[item_id], 200
+        except KeyError:
+            abort(404, message="Store not found")
+
+    def delete(self, item_id):
+        try:
+            del items[item_id]
+            return {"message": "Item deleted successfully"}, 200
+        except KeyError:
+            abort(404, message="Item not found.")
+
+    @items_blp.response(200, ItemUpdateSchema)
+    def put(self, item_data, item_id):
+        # item_data is returned in json formate after all the validation performed by ItemSchema on `request.get_json()`
+
+        try:
+            item = items[item_id]
+            item |= item_data
+            return item
+        except KeyError:
+            abort(404, message="Item not found.")

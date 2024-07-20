@@ -12,32 +12,11 @@ from schemas import StoreSchema
 stores_blp = Blueprint("stores", __name__, description="operations on stores")
 
 
-@stores_blp.route("/store/<string:store_id>")
-class Store(MethodView):
-    def get(self, store_id):
-        try:
-            return stores[store_id]
-        except KeyError:
-            abort(404, message="Store not found")
-
-    def delete(self, store_id):
-        try:
-            del stores["store_id"]
-            return {"message": "Store deleted successfully"}, 200
-        except KeyError:
-            abort(404, message="Store not found.")
-
-
-@stores_blp.route("/stores")
-class Stores(MethodView):
-    def get(self):
-        return {"stores": stores}, 200
-
-
 @stores_blp.route("/store")
 class Create_Store(MethodView):
 
     @stores_blp.arguments(StoreSchema)
+    @stores_blp.response(200, StoreSchema)
     def post(self, store_data):
         # store_data is returned in json formate after all the validation performed by StoreSchema on `request.get_json()`
 
@@ -51,4 +30,28 @@ class Create_Store(MethodView):
         store_id = uuid.uuid4().hex
         store = {**store_data, "id": store_id}
         stores[store_id] = store
-        return store, 200
+        return store
+
+
+@stores_blp.route("/stores")
+class Stores(MethodView):
+
+    @stores_blp.response(200, StoreSchema(many=True))
+    def get(self):
+        return stores.values()
+
+
+@stores_blp.route("/store/<string:store_id>")
+class Store(MethodView):
+    def get(self, store_id):
+        try:
+            return stores[store_id], 200
+        except KeyError:
+            abort(404, message="Store not found")
+
+    def delete(self, store_id):
+        try:
+            del stores["store_id"]
+            return {"message": "Store deleted successfully"}, 200
+        except KeyError:
+            abort(404, message="Store not found.")
