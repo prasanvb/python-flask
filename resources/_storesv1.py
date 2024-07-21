@@ -1,10 +1,10 @@
+import uuid
 from flask import request
+from db import stores
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
-from db import db
-from models.stores import StoreModel
+
 from schemas import StoreSchema
-from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
 # MethodView: Dispatches request methods to the corresponding instance methods. For example, if you implement a get method, it will be used to handle GET requests.
 # blueprint: Decorators to specify Marshmallow schema for view functions I/O and API documentation registration
@@ -19,16 +19,17 @@ class Create_Store(MethodView):
     @stores_blp.response(200, StoreSchema)
     def post(self, store_data):
         # store_data is returned in json formate after all the validation performed by StoreSchema on `request.get_json()`
-        store = StoreModel(**store_data)
 
-        try:
-            db.session.add(store)
-            db.session.commit()
-        except IntegrityError:
-            abort(400, message="store name already exists")
-        except SQLAlchemyError:
-            abort(500, message="error while creating the store")
+        if "store_name" not in store_data:
+            abort(400, message="store_name data missing")
 
+        for store in stores.values():
+            if store["store_name"] == store_data["store_name"]:
+                abort(400, message="Store already exists.")
+
+        store_id = uuid.uuid4().hex
+        store = {**store_data, "id": store_id}
+        stores[store_id] = store
         return store
 
 
@@ -37,18 +38,20 @@ class Stores(MethodView):
 
     @stores_blp.response(200, StoreSchema(many=True))
     def get(self):
-        return StoreModel.query.all()
+        return stores.values()
 
 
 @stores_blp.route("/store/<string:store_id>")
 class Store(MethodView):
-
-    @stores_blp.response(200, StoreSchema)
     def get(self, store_id):
-        stores = StoreModel.query.get_or_404(store_id)
-        return stores
+        try:
+            return stores[store_id], 200
+        except KeyError:
+            abort(404, message="Store not found")
 
     def delete(self, store_id):
-        stores = StoreModel.query.get_or_404(store_id)
-        print(stores)
-        raise NotImplementedError("Deleting an store not implemented")
+        try:
+            del stores["store_id"]
+            return {"message": "Store deleted successfully"}, 200
+        except KeyError:
+            abort(404, message="Store not found.")
