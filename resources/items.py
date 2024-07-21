@@ -40,15 +40,20 @@ class Items(MethodView):
 
 @items_blp.route("/item/<string:item_id>")
 class Item(MethodView):
+
+    @items_blp.response(200, ItemSchema)
     def get(self, item_id):
         item = ItemModel.query.get_or_404(item_id)
-        print(item)
+
         return item
 
     def delete(self, item_id):
         item = ItemModel.query.get_or_404(item_id)
-        print(item)
-        raise NotImplementedError("Deleting an item not implemented")
+
+        db.session.delete(item)
+        db.session.commit()
+
+        return {"message": "Item deleted successfully"}, 200
 
     @items_blp.arguments(ItemUpdateSchema)
     @items_blp.response(200, ItemSchema)
