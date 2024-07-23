@@ -5,9 +5,13 @@ from db import db
 # 	"id": 1,
 # 	"name": "chair",
 # 	"price": 12.99,
-# 	"store_id": "f3a3c3b478b14e8eb4efda52af0b0ade"
-#   "store": []
+#   "store": {
+# 	    "id": 1,
+# 	    "store_name": "ikea"
+#   }
 # }
+
+
 class ItemModel(db.Model):
     __tablename__ = "items"
     id = db.Column(db.Integer, primary_key=True)
