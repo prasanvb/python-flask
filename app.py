@@ -1,12 +1,12 @@
+import os
 from flask import Flask
 from flask_smorest import Api
+from flask_jwt_extended import JWTManager
 from resources.stores import stores_blp
 from resources.items import items_blp
 from resources.tags import tags_blp
-from flask_smorest import Blueprint
-from flask.views import MethodView
+from resources.users import users_blp
 from db import db
-import os
 
 
 def create_app(db_url=None):
@@ -25,6 +25,10 @@ def create_app(db_url=None):
         "DATABASE_URL", "sqlite:///data.db"
     )
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config["JWT_SECRET_KEY"] = os.getenv("SECRETS", "jose")
+
+    jwt = JWTManager(app)
+
     db.init_app(app)
 
     api = Api(app)
@@ -36,6 +40,7 @@ def create_app(db_url=None):
     api.register_blueprint(stores_blp)
     api.register_blueprint(items_blp)
     api.register_blueprint(tags_blp)
+    api.register_blueprint(users_blp)
 
     return app
 
