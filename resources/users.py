@@ -56,6 +56,26 @@ class ManipulateUser(MethodView):
         return {"message": f"user_id {user_id} deleted successfully"}, 200
 
 
+# HMACSHA256(base64UrlEncode(header) + "." + base64UrlEncode(payload), secret)
+# jwt signing we need "algorithm", "payload" and "secret"
+# create_access_token
+# HEADER
+# {
+#   "alg": "HS256",
+#   "typ": "JWT"
+# }
+# PAYLOAD
+# {
+#   "fresh": false,
+#   "iat": 1721799720,
+#   "jti": "f8cdc3fa-d440-45c1-af88-70549eb6909f",
+#   "type": "access",
+#   "sub": "prasan",
+#   "nbf": 1721799720,
+#   "csrf": "2a8e3e33-dc0d-4054-896c-90577fe3713f",
+#   "exp": 1721800620
+# }
+
 @users_blp.route("/user/login")
 class LoginUser(MethodView):
 
@@ -66,7 +86,9 @@ class LoginUser(MethodView):
         ).first()
 
         if user and pbkdf2_sha256.verify(user_data["password"], user.password):
-            access_token = create_access_token(identity=user.id)
+            # create_access_token takes care of jwt signing
+            # identity value is used as sub within payload
+            access_token = create_access_token(identity=user.username)
             return {"access_token": access_token}, 200
 
         abort(401, message="Invalid credentials.")
