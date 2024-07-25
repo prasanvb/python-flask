@@ -1,7 +1,8 @@
 import os
-from flask import Flask
+from flask import Flask, jsonify
 from flask_smorest import Api
 from flask_jwt_extended import JWTManager
+from resources.root import root_blp
 from resources.stores import stores_blp
 from resources.items import items_blp
 from resources.tags import tags_blp
@@ -29,6 +30,32 @@ def create_app(db_url=None):
 
     jwt = JWTManager(app)
 
+    @jwt.expired_token_loader
+    def expired_token_callback(jwt_required, jwt_payload):
+        return (jsonify({
+                "message": "The token has expired.",
+                "error": "token_expired"}), 401)
+
+    @jwt.invalid_token_loader
+    def invalid_token_callback(error):
+        return (jsonify({
+                "message": "Signature verification failed.",
+                "error": "invalid_token"}), 401)
+
+    @jwt.unauthorized_loader
+    def unauthorized_callback(error):
+        return (jsonify({
+                "description": "Request does not contain an access token.",
+                "error": "authorization_required",
+                }), 401)
+
+    @jwt.additional_claims_loader
+    def additional_claims_callback(identity):
+        if identity == "prasan":
+            return {"is_admin": True}
+        else:
+            return {"is_admin": False}
+
     db.init_app(app)
 
     api = Api(app)
@@ -37,6 +64,7 @@ def create_app(db_url=None):
     def create_tables():
         db.create_all()
 
+    api.register_blueprint(root_blp)
     api.register_blueprint(stores_blp)
     api.register_blueprint(items_blp)
     api.register_blueprint(tags_blp)
