@@ -1,5 +1,7 @@
 from db import db
 
+# Not implemented
+
 
 class ItemsTags(db.Model):
     __tablename__ = "items_tags"

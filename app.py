@@ -8,6 +8,7 @@ from resources.items import items_blp
 from resources.tags import tags_blp
 from resources.users import users_blp
 from db import db
+from blocklist import BLOCKLIST
 
 
 def create_app(db_url=None):
@@ -30,8 +31,18 @@ def create_app(db_url=None):
 
     jwt = JWTManager(app)
 
+    @jwt.token_in_blocklist_loader
+    def check_if_token_in_blocklist(jwt_header, jwt_payload):
+        return jwt_payload["jti"] in BLOCKLIST
+
+    @jwt.revoked_token_loader
+    def revoked_token_callback(jwt_header, jwt_payload):
+        return (jsonify({
+            "description": "The token has been revoked.",
+            "error": "token_revoked"}), 401)
+
     @jwt.expired_token_loader
-    def expired_token_callback(jwt_required, jwt_payload):
+    def expired_token_callback(jwt_header, jwt_payload):
         return (jsonify({
                 "message": "The token has expired.",
                 "error": "token_expired"}), 401)
@@ -71,9 +82,3 @@ def create_app(db_url=None):
     api.register_blueprint(users_blp)
 
     return app
-
-
-# GET:http://127.0.0.1:3000/
-# @app.get("/")
-# def main():
-#     return "Python flask project", 200

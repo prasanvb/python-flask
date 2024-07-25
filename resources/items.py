@@ -43,15 +43,19 @@ class Item(MethodView):
     @jwt_required()
     @items_blp.response(200, ItemSchema)
     def get(self, item_id):
+        payload = get_jwt()
+        if not payload.get("is_admin"):
+            abort(400, message="only admins can view the Item")
+
         item = ItemModel.query.get_or_404(item_id)
 
         return item
 
     @jwt_required()
     def delete(self, item_id):
-        jwt = get_jwt()
-        if not jwt.get("is_admin"):
-            abort(400, message="only admins allowed to delete")
+        payload = get_jwt()
+        if not payload.get("is_admin"):
+            abort(400, message="only admins allowed to delete item")
 
         item = ItemModel.query.get_or_404(item_id)
 
@@ -60,6 +64,7 @@ class Item(MethodView):
 
         return {"message": "Item deleted successfully"}, 200
 
+    @jwt_required()
     @items_blp.arguments(ItemUpdateSchema)
     @items_blp.response(200, ItemSchema)
     def put(self, item_data, item_id):

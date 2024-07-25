@@ -44,6 +44,7 @@
 - `flask_jwt_extended.create_access_token(identity=username)`
   - Adds header `{  "alg":"HS256",  "typ":"JWT"  }`
   - Adds payload ```{"fresh": false, "iat":1721799720, "jti":"f8cdc3fa-d440-45c1-af88-70549eb6909f", "type":"access", "sub":"prasan", "nbf":1721799720, "csrf":"2a8e3e33-dc0d-4054-896c-90577fe3713f", "exp":1721800620  }```
+  - *NOTE:* `jti` json token identifier
 
 ### JWT VALIDATION
 - `@jwt_required()` if added to a route then need to pass authorization header `authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.NDgyNS1iYzMwLTcyY2EyNjlhYmJlNSIsImV4cCI6MTcyMTg3OTg3NX0.FDeE5T-Nk5sx6Ltwiy1mxhzKTTkoUpYR19ueW6hAYCE`
