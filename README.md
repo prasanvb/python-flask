@@ -48,4 +48,3 @@
 
 ### JWT VALIDATION
 - `@jwt_required()` if added to a route then need to pass authorization header `authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.NDgyNS1iYzMwLTcyY2EyNjlhYmJlNSIsImV4cCI6MTcyMTg3OTg3NX0.FDeE5T-Nk5sx6Ltwiy1mxhzKTTkoUpYR19ueW6hAYCE`
-- 
